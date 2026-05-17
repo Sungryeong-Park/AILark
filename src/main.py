@@ -1,5 +1,5 @@
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -10,10 +10,11 @@ from news_scraper import fetch_all_articles
 from github_scraper import fetch_repos
 from paper_scraper import fetch_papers
 
-load_dotenv()
+PROJECT_ROOT = Path(__file__).parent.parent
+load_dotenv(PROJECT_ROOT / ".env")
 
 MODEL = "gemini-2.5-flash"
-REPORTS_DIR = Path("reports")
+REPORTS_DIR = PROJECT_ROOT / "reports"
 
 PROMPT_TEMPLATE = PromptTemplate(
     input_variables=["data"],
@@ -67,18 +68,35 @@ def format_data(articles, repos, papers):
 
 
 def save_report(content):
-    REPORTS_DIR.mkdir(exist_ok=True)
-    date_str = datetime.now().strftime("%Y-%m-%d")
-    path = REPORTS_DIR / f"{date_str}_AILark_Brief.md"
+    now = datetime.now()
+    monday = now - timedelta(days=now.weekday())
+    sunday = monday + timedelta(days=6)
+    folder_name = f"{monday.strftime('%m%d')}-{sunday.strftime('%m%d')}"
+    report_dir = REPORTS_DIR / folder_name
+    report_dir.mkdir(parents=True, exist_ok=True)
+    date_str = now.strftime("%Y-%m-%d")
+    path = report_dir / f"{date_str}_AILark_Brief.md"
     path.write_text(content, encoding="utf-8")
     return path
 
 
 def main():
     print("데이터 수집 중...")
-    articles = fetch_all_articles()
-    repos = fetch_repos()
-    papers = fetch_papers()
+    try:
+        articles = fetch_all_articles()
+    except Exception as e:
+        print(f"뉴스 수집 실패: {e}")
+        articles = []
+    try:
+        repos = fetch_repos()
+    except Exception as e:
+        print(f"GitHub 수집 실패: {e}")
+        repos = []
+    try:
+        papers = fetch_papers()
+    except Exception as e:
+        print(f"논문 수집 실패: {e}")
+        papers = []
 
     data = format_data(articles, repos, papers)
     prompt = PROMPT_TEMPLATE.format(data=data)
