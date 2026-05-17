@@ -16,6 +16,26 @@ load_dotenv(PROJECT_ROOT / ".env")
 MODEL = "gemini-2.5-flash"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 
+WEEKLY_RECAP_PROMPT = PromptTemplate(
+    input_variables=["data"],
+    template="""Output in Korean.
+
+You are given last week's AI technical reports. Extract the most important engineering topics and write a fresh, concise recap.
+
+Rules:
+- Max 5 bullet points
+- Each bullet: bold topic name + one-line description of why it matters
+- Do NOT copy sentences from the source. Rewrite in your own words.
+- Exclude non-engineering content (ethics, job market, policy)
+- Output ONLY the section below. No other text.
+
+## [ 지난주 리마인드 ]
+
+[Last week's reports]
+{data}
+""",
+)
+
 PROMPT_TEMPLATE = PromptTemplate(
     input_variables=["data"],
     template="""반드시 한국어로 작성할 것.
@@ -48,6 +68,27 @@ When architecture or algorithm flow IS sufficiently described in the source data
 {data}
 """,
 )
+
+
+def build_weekly_recap(llm):
+    now = datetime.now()
+    last_monday = now - timedelta(days=now.weekday() + 7)
+    last_sunday = last_monday + timedelta(days=6)
+    folder_name = f"{last_monday.strftime('%m%d')}-{last_sunday.strftime('%m%d')}"
+    last_week_dir = REPORTS_DIR / folder_name
+
+    if not last_week_dir.exists():
+        return ""
+
+    reports = sorted(last_week_dir.glob("*.md"))
+    if not reports:
+        return ""
+
+    combined = "\n\n".join(p.read_text(encoding="utf-8") for p in reports)
+    prompt = WEEKLY_RECAP_PROMPT.format(data=combined)
+    response = llm.invoke(prompt)
+    lines = [l for l in response.content.strip().splitlines() if not l.startswith("## [") or "지난주 리마인드" in l]
+    return "\n".join(lines) + "\n\n---\n\n"
 
 
 def format_data(articles, repos, papers):
@@ -106,9 +147,15 @@ def main():
         model=MODEL,
         google_api_key=os.getenv("GEMINI_API_KEY"),
     )
+
+    recap = ""
+    if datetime.now().weekday() == 0:
+        print("주간 리마인드 생성 중...")
+        recap = build_weekly_recap(llm)
+
     response = llm.invoke(prompt)
 
-    path = save_report(response.content)
+    path = save_report(recap + response.content)
     print(f"저장 완료: {path}")
     print("\n" + response.content)
 
