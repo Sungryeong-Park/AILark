@@ -1,7 +1,7 @@
 import requests
 import xml.etree.ElementTree as ET
 
-API_URL = "http://export.arxiv.org/api/query"
+API_URL = "https://export.arxiv.org/api/query"
 PAPER_LIMIT = 3
 NS = {"atom": "http://www.w3.org/2005/Atom"}
 

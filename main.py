@@ -17,28 +17,33 @@ REPORTS_DIR = Path("reports")
 
 PROMPT_TEMPLATE = PromptTemplate(
     input_variables=["data"],
-    template="""너는 실무 중심의 시니어 AI 엔지니어다. 제공된 데이터에서 다음 규칙을 엄격히 지켜서 마크다운 리포트를 작성해.
+    template="""반드시 한국어로 작성할 것.
 
-**철저한 필터링**: 철학, 일자리, 윤리, 단순 정책 등 실무와 무관한 가십성 기사는 완전히 삭제해. 오직 신규 모델(LLM 등), 프레임워크 업데이트, 기술 스펙, 오픈소스 툴에 관련된 내용만 남겨.
+You are a senior AI engineer focused on practical implementation. Write a markdown report from the provided data by strictly following all rules below.
 
-**리포트 구조**:
+**Filtering:** Remove all gossip-level content unrelated to engineering practice — philosophy, job market, ethics, generic policy. Keep only: new models, framework updates, technical specs, open-source tools, real-world AI product implementations, and developer-facing practical guides.
+
+**Report Structure:**
 
 ## [ TL;DR ]
-오늘 수집된 정보 중 가장 중요한 기술적 변화 3가지만 글머리 기호로 요약해.
+Summarize the 3 most important technical changes from today's data as bullet points.
 
 ## [ 상세 기술 리포트 ]
-필터링하고 남은 각 뉴스, GitHub 트렌드, 논문에 대해 매우 상세하게 서술해.
-GitHub와 논문은 '어떤 아키텍처를 썼는지', '실무에 어떻게 적용 가능한지', '기존 기술 대비 차별점'을 위주로 개발자가 이해할 수 있는 깊이로 길게 설명해. 분량 제한은 두지 마.
-리뷰하는 GitHub 프로젝트의 아키텍처나, 논문의 핵심 알고리즘 흐름을 설명할 때는 반드시 마크다운 내에서 렌더링되는 Mermaid.js 코드 블록(플로우차트 또는 시퀀스 다이어그램)을 하나 이상 포함하여 시각적으로 이해하기 쉽게 구성할 것.
-Mermaid 문법 규칙을 반드시 준수할 것:
-- 플로우차트는 반드시 `flowchart TD` 로 시작할 것 (`graph` 키워드 사용 금지)
-- 노드 레이블에 괄호, 콜론, 슬래시, 하이픈, 따옴표 등 특수문자를 절대 사용하지 말 것. 예시 표기나 부연 설명은 레이블에서 제거하고 순수한 명사/동사만 남길 것
-- 화살표 레이블에도 괄호, 따옴표, 슬래시 등 특수문자를 절대 사용하지 말 것
-- `A & B --> C` 형태의 다중 출처 문법은 사용 금지. 반드시 각각의 화살표로 분리할 것
-- 시퀀스 다이어그램은 `sequenceDiagram` 으로 시작하고 `participant`, `->>` 문법만 사용할 것
-- 서브그래프, 스타일링 등 고급 문법은 사용하지 말 것
+For each item that passed the filter, write a detailed technical explanation covering: architecture used, practical applicability, and differentiation from existing approaches. No length limit.
 
-[수집 데이터]
+**Accuracy Rule (Highest Priority):**
+Accuracy is paramount. If the source data does not contain sufficient detail about the architecture or technical specs, do NOT fabricate or hallucinate any information. In that case, skip the diagram and explicitly write: "수집된 원문에는 상세 아키텍처 정보가 포함되어 있지 않습니다."
+
+**Mermaid Diagrams:**
+When architecture or algorithm flow IS sufficiently described in the source data, include at least one Mermaid.js code block. Follow these syntax rules strictly:
+- Start flowcharts with `flowchart TD` only. Never use `graph`.
+- Node labels must contain NO special characters — no parentheses, colons, slashes, hyphens, or quotes. Use plain nouns and verbs only.
+- Arrow labels must also contain NO special characters.
+- Never use `A & B --> C` syntax. Write each arrow on a separate line.
+- Sequence diagrams must start with `sequenceDiagram` and use only `participant` and `->>`.
+- No subgraphs or styling.
+
+[Collected Data]
 {data}
 """,
 )

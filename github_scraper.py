@@ -5,17 +5,31 @@ API_URL = "https://api.github.com/search/repositories"
 REPO_LIMIT = 3
 
 
-def fetch_repos(limit=REPO_LIMIT):
-    since = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
+TOPICS = ["ai", "llm", "machine-learning"]
+
+
+def _fetch_by_topic(topic, since):
     params = {
-        "q": f'ai OR "machine learning" OR llm pushed:>{since}',
+        "q": f"topic:{topic} created:>{since}",
         "sort": "stars",
         "order": "desc",
-        "per_page": limit,
+        "per_page": 10,
     }
     response = requests.get(API_URL, params=params, timeout=10)
     response.raise_for_status()
-    items = response.json()["items"]
+    return response.json()["items"]
+
+
+def fetch_repos(limit=REPO_LIMIT):
+    since = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+    seen = set()
+    merged = []
+    for topic in TOPICS:
+        for item in _fetch_by_topic(topic, since):
+            if item["html_url"] not in seen:
+                seen.add(item["html_url"])
+                merged.append(item)
+    merged.sort(key=lambda x: x["stargazers_count"], reverse=True)
     return [
         {
             "name": item["full_name"],
@@ -23,7 +37,7 @@ def fetch_repos(limit=REPO_LIMIT):
             "description": item["description"] or "",
             "stars": item["stargazers_count"],
         }
-        for item in items
+        for item in merged[:limit]
     ]
 
 
