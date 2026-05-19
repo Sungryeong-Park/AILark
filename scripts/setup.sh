@@ -41,6 +41,8 @@ fi
 echo "[4/4] 자동 실행 등록 중..."
 chmod +x "$PROJECT_DIR/scripts/run_ailark.sh"
 
+mkdir -p "$PROJECT_DIR/logs"
+
 cat > "$PLIST_PATH" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -53,14 +55,26 @@ cat > "$PLIST_PATH" <<EOF
         <string>/bin/bash</string>
         <string>$PROJECT_DIR/scripts/run_ailark.sh</string>
     </array>
-    <key>StartCalendarInterval</key>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>HOME</key>
+        <string>$HOME</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>CalendarInterval</key>
     <array>
-        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>8</integer><key>Minute</key><integer>0</integer></dict>
+        <dict>
+            <key>Minute</key>
+            <integer>0</integer>
+        </dict>
     </array>
+    <key>StandardOutPath</key>
+    <string>$PROJECT_DIR/logs/ailark.log</string>
+    <key>StandardErrorPath</key>
+    <string>$PROJECT_DIR/logs/ailark_error.log</string>
 </dict>
 </plist>
 EOF
