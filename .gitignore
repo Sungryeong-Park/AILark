@@ -2,3 +2,5 @@ venv/
 .venv/
 .env
 reports/
+.claude/
+logs/
