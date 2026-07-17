@@ -1,7 +1,25 @@
+import io
 import os
+import wave
 from pathlib import Path
 from google import genai
 from google.genai import types
+
+# Gemini TTS returns raw PCM at 24kHz, 16-bit, mono
+_PCM_SAMPLE_RATE = 24000
+_PCM_CHANNELS = 1
+_PCM_SAMPLE_WIDTH = 2  # 16-bit
+
+
+def _wrap_pcm_as_wav(pcm_data: bytes) -> bytes:
+    """raw PCM 바이트에 WAV 헤더 추가"""
+    buf = io.BytesIO()
+    with wave.open(buf, "wb") as wf:
+        wf.setnchannels(_PCM_CHANNELS)
+        wf.setsampwidth(_PCM_SAMPLE_WIDTH)
+        wf.setframerate(_PCM_SAMPLE_RATE)
+        wf.writeframes(pcm_data)
+    return buf.getvalue()
 
 
 def synthesize_speech(text: str, output_path: Path) -> Path:
@@ -20,6 +38,9 @@ def synthesize_speech(text: str, output_path: Path) -> Path:
         ),
     )
     audio_data = response.candidates[0].content.parts[0].inline_data.data
+    # Gemini TTS returns raw PCM without WAV header — wrap it
+    if not audio_data[:4] == b"RIFF":
+        audio_data = _wrap_pcm_as_wav(audio_data)
     output_path.write_bytes(audio_data)
     return output_path
 
