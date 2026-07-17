@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { width:1920px; height:1080px; overflow:hidden; background:#0f1117;
+         color:#e8eaf0; font-family:"Apple SD Gothic Neo","Noto Sans KR",sans-serif; }
+  .slide { width:1920px; height:1080px; position:absolute; top:0; left:0;
+           display:flex; flex-direction:column; justify-content:center;
+           align-items:center; padding:80px; opacity:0;
+           transition:opacity 0.5s ease; pointer-events:none; }
+  .slide.active { opacity:1; pointer-events:auto; }
+  .fade-in { opacity:0; transform:translateY(20px);
+             transition:opacity 0.5s ease, transform 0.5s ease; }
+  .fade-in.show { opacity:1; transform:translateY(0); }
+  .tag { font-size:18px; letter-spacing:4px; text-transform:uppercase;
+         color:#3b82f6; margin-bottom:24px; font-weight:600; }
+  .title { font-size:72px; font-weight:800; line-height:1.2; text-align:center; }
+  .subtitle { font-size:32px; color:#9ca3af; margin-top:24px; text-align:center; }
+  .divider { width:80px; height:4px; background:#3b82f6; border-radius:2px; margin:32px auto; }
+  .footer { position:absolute; bottom:40px; right:80px; font-size:24px; color:#374151; font-weight:600; }
+  .section-title { font-size:48px; font-weight:800; color:#3b82f6; margin-bottom:48px; align-self:flex-start; }
+  .card { background:#1a1d27; border:1px solid #2a2d3a; border-radius:16px;
+          padding:32px 40px; width:100%; margin-bottom:24px; }
+  .card-title { font-size:32px; font-weight:700; margin-bottom:12px; }
+  .card-body { font-size:26px; color:#9ca3af; line-height:1.6; }
+  .badge { display:inline-block; font-size:20px; font-weight:600; padding:6px 18px;
+           border-radius:8px; background:#1e3a5f; color:#60a5fa; margin-right:12px; }
+  .highlight { color:#60a5fa; font-weight:700; }
+  .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:32px; width:100%; }
+  .region-title { font-size:28px; font-weight:700; color:#60a5fa; margin-bottom:20px; }
+  .news-card { background:#1a1d27; border:1px solid #2a2d3a; border-radius:12px;
+               padding:20px 28px; margin-bottom:16px; }
+  .news-body { font-size:24px; color:#d1d5db; line-height:1.5; }
+</style>
+</head>
+<body>
+
+{% for slide in slides %}
+{% if slide.id == "intro" %}
+<div class="slide{% if loop.first %} active{% endif %}" data-slide="{{ loop.index0 }}">
+  <div class="tag fade-in">Daily Brief</div>
+  <div class="title fade-in" style="transition-delay:0.2s">AILark</div>
+  <div class="divider fade-in" style="transition-delay:0.4s"></div>
+  <div class="subtitle fade-in" style="transition-delay:0.6s">{{ date }} · AI 기술 동향 리포트</div>
+</div>
+
+{% elif slide.id == "tldr" %}
+<div class="slide" data-slide="{{ loop.index0 }}" style="align-items:flex-start;">
+  <div class="section-title fade-in">TL;DR</div>
+  {% for point in slide.data.summary %}
+  <div class="card fade-in" style="transition-delay:{{ loop.index * 0.15 }}s">
+    <div class="card-body" style="font-size:30px;color:#e8eaf0;">
+      <span class="highlight">0{{ loop.index }}&nbsp;&nbsp;</span>{{ point }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+{% elif slide.id == "news" %}
+<div class="slide" data-slide="{{ loop.index0 }}" style="align-items:flex-start;">
+  <div class="section-title fade-in">글로벌 AI 뉴스</div>
+  <div class="grid-3">
+    {% for region, label in [("kr","🇰🇷 Korea"),("us","🇺🇸 US"),("jp","🇯🇵 Japan")] %}
+    <div class="fade-in" style="transition-delay:{{ loop.index * 0.2 }}s">
+      <div class="region-title">{{ label }}</div>
+      {% for article in slide.data[region] %}
+      <div class="news-card"><div class="news-body">{{ article.title }}</div></div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% elif slide.id == "github" %}
+<div class="slide" data-slide="{{ loop.index0 }}" style="align-items:flex-start;">
+  <div class="section-title fade-in">GitHub 트렌드</div>
+  {% for repo in slide.data.repos %}
+  <div class="card fade-in" style="transition-delay:{{ loop.index * 0.2 }}s">
+    <div style="display:flex;align-items:center;margin-bottom:12px;">
+      <div class="card-title">{{ repo.name }}</div>
+      <div class="badge" style="margin-left:24px;">★ {{ repo.stars }}</div>
+    </div>
+    <div class="card-body">{{ repo.description }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% elif slide.id == "papers" %}
+<div class="slide" data-slide="{{ loop.index0 }}" style="align-items:flex-start;">
+  <div class="section-title fade-in">주요 논문</div>
+  {% for paper in slide.data.papers %}
+  <div class="card fade-in" style="transition-delay:{{ loop.index * 0.2 }}s">
+    <div class="card-title" style="font-size:28px;">{{ paper.title }}</div>
+    <div class="card-body" style="margin-top:12px;">{{ paper.summary }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+{% elif slide.id == "outro" %}
+<div class="slide" data-slide="{{ loop.index0 }}">
+  <div class="tag fade-in">AILark Daily Brief</div>
+  <div class="title fade-in" style="font-size:52px;transition-delay:0.2s">{{ slide.data.message }}</div>
+  <div class="divider fade-in" style="transition-delay:0.4s"></div>
+  <div class="subtitle fade-in" style="transition-delay:0.6s">내일도 함께하겠습니다</div>
+</div>
+{% endif %}
+{% endfor %}
+
+<div class="footer">AILark · {{ date }}</div>
+
+<script>
+const TIMINGS = {{ timings_json }};  // [ms per slide]
+let current = 0;
+
+function showSlide(idx) {
+  document.querySelectorAll('.slide').forEach((s, i) => {
+    s.classList.toggle('active', i === idx);
+  });
+  // fade-in 애니메이션 트리거
+  setTimeout(() => {
+    document.querySelectorAll('.slide.active .fade-in').forEach(el => {
+      el.classList.add('show');
+    });
+  }, 100);
+}
+
+function advance() {
+  if (current >= TIMINGS.length) return;
+  showSlide(current);
+  setTimeout(() => {
+    current++;
+    advance();
+  }, TIMINGS[current]);
+}
+
+advance();
+</script>
+</body>
+</html>
