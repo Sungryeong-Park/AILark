@@ -5,12 +5,13 @@ API_URL = "https://api.github.com/search/repositories"
 REPO_LIMIT = 3
 
 
-TOPICS = ["ai", "llm", "machine-learning"]
+TOPICS = ["llm", "physical-ai", "embedded-ai", "robotics", "tinyml"]
+MIN_STARS = 10000
 
 
 def _fetch_by_topic(topic, since):
     params = {
-        "q": f"topic:{topic} created:>{since}",
+        "q": f"topic:{topic} stars:>={MIN_STARS} pushed:>{since}",
         "sort": "stars",
         "order": "desc",
         "per_page": 10,

@@ -9,6 +9,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from news_scraper import fetch_all_articles
 from github_scraper import fetch_repos
 from paper_scraper import fetch_papers
+import video_generator
 
 PROJECT_ROOT = Path(__file__).parent.parent
 load_dotenv(PROJECT_ROOT / ".env")
@@ -161,6 +162,17 @@ def main():
     path = save_report(recap + response.content)
     print(f"저장 완료: {path}")
     print("\n" + response.content)
+
+    print("영상 생성 중...")
+    video_path = video_generator.generate(
+        articles, repos, papers,
+        datetime.now().strftime("%Y-%m-%d"),
+        path.parent,
+    )
+    if video_path:
+        print(f"영상 저장 완료: {video_path}")
+    else:
+        print("영상 생성 실패 (리포트는 정상 저장됨)")
 
 
 if __name__ == "__main__":

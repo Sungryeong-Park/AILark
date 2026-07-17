@@ -6,9 +6,9 @@ RSS_BASE = "https://news.google.com/rss/search"
 ARTICLE_LIMIT = 3
 
 TARGETS = [
-    {"tag": "KR", "params": "q=인공지능+OR+AI&hl=ko&gl=KR&ceid=KR:ko"},
-    {"tag": "US", "params": "q=Artificial+Intelligence+OR+AI&hl=en-US&gl=US&ceid=US:en"},
-    {"tag": "JP", "params": "q=人工知能+OR+AI&hl=ja&gl=JP&ceid=JP:ja"},
+    {"tag": "KR", "params": "q=(인공지능+OR+AI)+(발표+OR+출시+OR+공개+OR+런칭)&hl=ko&gl=KR&ceid=KR:ko"},
+    {"tag": "US", "params": "q=(artificial+intelligence+OR+AI)+(launch+OR+announce+OR+release+OR+unveil)&hl=en-US&gl=US&ceid=US:en"},
+    {"tag": "JP", "params": "q=(人工知能+OR+AI)+(発表+OR+リリース+OR+新製品+OR+公開)&hl=ja&gl=JP&ceid=JP:ja"},
 ]
 
 
