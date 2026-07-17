@@ -113,17 +113,25 @@
 <script>
 const TIMINGS = {{ timings_json }};  // [ms per slide]
 let current = 0;
+const FADE_MS = 500;  // CSS transition duration
 
 function showSlide(idx) {
-  document.querySelectorAll('.slide').forEach((s, i) => {
-    s.classList.toggle('active', i === idx);
-  });
-  // fade-in 애니메이션 트리거
+  const slides = document.querySelectorAll('.slide');
+  const prev = document.querySelector('.slide.active');
+
+  // 이전 슬라이드 fade-out
+  if (prev) {
+    prev.querySelectorAll('.fade-in').forEach(el => el.classList.remove('show'));
+    prev.classList.remove('active');
+  }
+
+  // fade-out 완료 후 새 슬라이드 fade-in
   setTimeout(() => {
-    document.querySelectorAll('.slide.active .fade-in').forEach(el => {
-      el.classList.add('show');
-    });
-  }, 100);
+    slides[idx].classList.add('active');
+    setTimeout(() => {
+      slides[idx].querySelectorAll('.fade-in').forEach(el => el.classList.add('show'));
+    }, 150);
+  }, prev ? FADE_MS : 0);
 }
 
 function advance() {
