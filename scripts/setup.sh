@@ -16,6 +16,7 @@ fi
 # 2. 패키지 설치
 echo "[2/4] 패키지 설치 중..."
 "$PROJECT_DIR/.venv/bin/pip" install -q -r "$PROJECT_DIR/requirements.txt"
+"$PROJECT_DIR/.venv/bin/playwright" install chromium
 
 # 3. .env 생성
 echo "[3/4] API 키 설정"
