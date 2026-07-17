@@ -1,0 +1,16 @@
+<!-- templates/slides/github.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="slide active" id="github" style="align-items:flex-start;">
+  <div class="section-title fade-in">GitHub 트렌드</div>
+  {% for repo in data.repos %}
+  <div class="card fade-in" style="transition-delay:{{ loop.index * 0.2 }}s">
+    <div style="display:flex;align-items:center;margin-bottom:12px;">
+      <div class="card-title">{{ repo.name }}</div>
+      <div class="badge" style="margin-left:24px;">★ {{ repo.stars }}</div>
+    </div>
+    <div class="card-body">{{ repo.description }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

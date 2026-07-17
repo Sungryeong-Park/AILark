@@ -1,0 +1,19 @@
+<!-- templates/slides/news.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="slide active" id="news" style="align-items:flex-start;">
+  <div class="section-title fade-in">글로벌 AI 뉴스</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;width:100%;">
+    {% for region, label in [("kr","🇰🇷 Korea"),("us","🇺🇸 US"),("jp","🇯🇵 Japan")] %}
+    <div class="fade-in" style="transition-delay:{{ loop.index * 0.2 }}s">
+      <div style="font-size:28px;font-weight:700;color:#60a5fa;margin-bottom:20px;">{{ label }}</div>
+      {% for article in data[region] %}
+      <div class="card" style="padding:20px 28px;margin-bottom:16px;">
+        <div class="card-body" style="font-size:24px;color:#d1d5db;">{{ article.title }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

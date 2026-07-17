@@ -1,0 +1,14 @@
+<!-- templates/slides/tldr.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="slide active" id="tldr" style="align-items:flex-start;">
+  <div class="section-title fade-in">TL;DR</div>
+  {% for point in data.summary %}
+  <div class="card fade-in" style="transition-delay:{{ loop.index * 0.15 }}s">
+    <div class="card-body" style="font-size:30px;color:#e8eaf0;">
+      <span class="highlight">0{{ loop.index }}&nbsp;&nbsp;</span>{{ point }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}
