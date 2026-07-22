@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from google import genai
+from google.genai import types
 
 SCRIPT_PROMPT = """당신은 AI 기술 분석가입니다. 아래 데이터를 바탕으로 동영상 슬라이드 나레이션 스크립트를 작성해주세요.
 
@@ -10,6 +11,7 @@ SCRIPT_PROMPT = """당신은 AI 기술 분석가입니다. 아래 데이터를 �
 - 자연스러운 구어체 한국어
 - 전체 스크립트는 하나의 이야기처럼 흘러가도록. tldr→뉴스→github→논문 슬라이드는 앞 슬라이드와 자연스럽게 이어지는 전환구로 시작.
   예) "이러한 흐름 속에서 글로벌 뉴스를 보면...", "뉴스에서도 확인되듯이, GitHub 트렌드를 보면..."
+- outro: "내일도 함께하겠습니다", "다음에 또 만나요" 등 방송 멘트 금지. 오늘의 핵심 메시지만 간결하게.
 
 슬라이드별 나레이션 길이:
 - intro, outro: 5~10초 이내 (1~2문장)
@@ -35,7 +37,7 @@ GitHub 트렌드:
 {{
   "date": "{date}",
   "slides": [
-    {{"id": "intro", "narration": "{week_label} AILark 브리프입니다. 오늘의 주요 AI 동향을 살펴보겠습니다.", "data": {{}}}},
+    {{"id": "intro", "narration": "{week_label} 기술 동향 리포트입니다.", "data": {{}}}},
     {{"id": "tldr", "narration": "...", "data": {{"summary": ["핵심1", "핵심2", "핵심3"]}}}},
     {{"id": "news", "narration": "...", "data": {{
       "kr": [{{"title": "..."}}],
@@ -84,10 +86,8 @@ def generate_script(articles: list, repos: list, papers: list, date: str) -> dic
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt,
+        config=types.GenerateContentConfig(
+            response_mime_type="application/json",
+        ),
     )
-    content = response.text.strip()
-    if content.startswith("```"):
-        content = content.split("```")[1]
-        if content.startswith("json"):
-            content = content[4:]
-    return json.loads(content.strip())
+    return json.loads(response.text.strip())
